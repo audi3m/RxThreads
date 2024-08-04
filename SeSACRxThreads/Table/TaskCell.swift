@@ -10,11 +10,14 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-final class ShoppingListCell: UITableViewCell {
-    static let id = "ShoppingListCell"
+final class TaskCell: UITableViewCell {
+    static var id: String {
+        String(describing: self)
+    }
     var disposeBag = DisposeBag()
+    var task: Task?
     
-    private let likeButton: UIButton = {
+    let likeButton: UIButton = {
         let button = UIButton()
         return button
     }()
@@ -22,7 +25,7 @@ final class ShoppingListCell: UITableViewCell {
         let label = UILabel()
         return label
     }()
-    private let doneButton: UIButton = {
+    let doneButton: UIButton = {
         let button = UIButton()
         return button
     }()
@@ -34,16 +37,20 @@ final class ShoppingListCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
         self.selectionStyle = .none
-        configure()
+        configureView()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        configureData()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func configure() {
+    private func configureView() {
         contentView.addSubview(likeButton)
         contentView.addSubview(titleLabel)
         contentView.addSubview(doneButton)
@@ -64,6 +71,12 @@ final class ShoppingListCell: UITableViewCell {
         likeButton.setImage(UIImage(systemName: "star"), for: .normal)
         doneButton.setImage(UIImage(systemName: "square"), for: .normal)
         
-        backgroundColor = .systemGray4
+    }
+    
+    func configureData() {
+        guard let task else { return }
+        titleLabel.text = task.title
+        likeButton.setImage(UIImage(systemName: task.like ? "star.fill" : "star"), for: .normal)
+        doneButton.setImage(UIImage(systemName: task.done ? "checkmark.square" : "square"), for: .normal)
     }
 }
