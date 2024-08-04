@@ -18,6 +18,12 @@ struct Task {
 
 final class TaskListViewController: UIViewController {
     
+    private let searchBar: UISearchBar = {
+        let bar = UISearchBar()
+        bar.placeholder = "검색어를 입력하세요"
+        bar.backgroundImage = UIImage()
+        return bar
+    }()
     private let addItemBar: UISearchBar = {
         let bar = UISearchBar()
         bar.setImage(UIImage(systemName: "plus"), for: .search, state: .normal)
@@ -32,6 +38,7 @@ final class TaskListViewController: UIViewController {
     }()
     
     private let disposeBag = DisposeBag()
+    private var originalTasks: [Task] = []
     private var tasks = BehaviorRelay<[Task]>(value: [])
     
     override func viewDidLoad() {
@@ -68,18 +75,18 @@ extension TaskListViewController: UITableViewDelegate {
             .bind(with: self, onNext: { owner, value in
                 guard !value.isEmpty else { return }
                 let newItem = Task(title: value)
-                var tasks = owner.tasks.value
-                tasks.insert(newItem, at: 0)
-                owner.tasks.accept(tasks)
+//                var tasks = owner.tasks.value
+                owner.originalTasks.insert(newItem, at: 0)
+                owner.tasks.accept(owner.originalTasks)
                 owner.addItemBar.text = ""
             })
             .disposed(by: disposeBag)
         
         tableView.rx.itemDeleted
             .bind(with: self) { owner, indexPath in
-                var tasks = owner.tasks.value
-                tasks.remove(at: indexPath.row)
-                owner.tasks.accept(tasks)
+//                var tasks = owner.tasks.value
+                owner.originalTasks.remove(at: indexPath.row)
+                owner.tasks.accept(owner.originalTasks)
             }
             .disposed(by: disposeBag)
         
@@ -91,21 +98,33 @@ extension TaskListViewController: UITableViewDelegate {
             })
             .disposed(by: disposeBag)
         
+        searchBar.rx.text.orEmpty
+//            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .distinctUntilChanged()
+            .bind(with: self) { owner, value in
+                print("실시간 검색어: \(value)")
+                if !value.isEmpty {
+                    let filteredTasks = owner.originalTasks.filter { $0.title.contains(value) }
+                    owner.tasks.accept(filteredTasks)
+                } else {
+                    owner.tasks.accept(owner.originalTasks)
+                }
+            }
+            .disposed(by: disposeBag)
+        
         tableView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
     }
     
     private func toggleDone(at index: Int) {
-        var task = tasks.value
-        task[index].done.toggle()
-        tasks.accept(task)
+        originalTasks[index].done.toggle()
+        tasks.accept(originalTasks)
     }
     
     private func toggleLike(at index: Int) {
-        var task = tasks.value
-        task[index].like.toggle()
-        tasks.accept(task)
+        originalTasks[index].like.toggle()
+        tasks.accept(originalTasks)
     }
 }
 
@@ -114,11 +133,17 @@ extension TaskListViewController {
         view.backgroundColor = .white
         navigationItem.title = "Task List"
         
+        view.addSubview(searchBar)
         view.addSubview(addItemBar)
         view.addSubview(tableView)
         
-        addItemBar.snp.makeConstraints { make in
+        searchBar.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        addItemBar.snp.makeConstraints { make in
+            make.top.equalTo(searchBar.snp.bottom)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
         }
         
