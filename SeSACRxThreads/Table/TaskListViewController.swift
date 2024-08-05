@@ -46,10 +46,9 @@ final class TaskListViewController: UIViewController {
         configureView()
         bind()
     }
-    
 }
 
-extension TaskListViewController: UITableViewDelegate {
+extension TaskListViewController {
     
     private func bind() {
         tasks
@@ -75,7 +74,6 @@ extension TaskListViewController: UITableViewDelegate {
             .bind(with: self, onNext: { owner, value in
                 guard !value.isEmpty else { return }
                 let newItem = Task(title: value)
-//                var tasks = owner.tasks.value
                 owner.originalTasks.insert(newItem, at: 0)
                 owner.tasks.accept(owner.originalTasks)
                 owner.addItemBar.text = ""
@@ -84,7 +82,6 @@ extension TaskListViewController: UITableViewDelegate {
         
         tableView.rx.itemDeleted
             .bind(with: self) { owner, indexPath in
-//                var tasks = owner.tasks.value
                 owner.originalTasks.remove(at: indexPath.row)
                 owner.tasks.accept(owner.originalTasks)
             }
@@ -110,9 +107,6 @@ extension TaskListViewController: UITableViewDelegate {
                     owner.tasks.accept(owner.originalTasks)
                 }
             }
-            .disposed(by: disposeBag)
-        
-        tableView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
     }
