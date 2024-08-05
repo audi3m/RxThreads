@@ -54,6 +54,7 @@ final class SearchViewController: UIViewController {
         
         // 기능 추가하고 싶을 때
         searchBar.rx.searchButtonClicked
+//            .withUnretained(self)   // [weak self] 대신
             .withLatestFrom(searchBar.rx.text.orEmpty) { void, text in
                 return text
             }
