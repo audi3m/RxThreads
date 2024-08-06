@@ -48,7 +48,8 @@ extension TaskListViewController {
         
         let input = TaskViewModel.Input(addTap: addItemBar.rx.searchButtonClicked,
                                         searchText: searchBar.rx.text.orEmpty,
-                                        newTaskTitle: addItemBar.rx.text.orEmpty)
+                                        newTaskTitle: addItemBar.rx.text.orEmpty, 
+                                        deleteAt: tableView.rx.itemDeleted)
         let output = viewModel.transform(input: input)
         
         // 즐겨찾기, 완료 버튼
@@ -69,25 +70,10 @@ extension TaskListViewController {
             .disposed(by: disposeBag)
         
         // 추가
-        addItemBar.rx.searchButtonClicked
-            .withLatestFrom(addItemBar.rx.text.orEmpty) { void, text in
-                return text
-            }
-            .bind(with: self, onNext: { owner, value in
-                guard !value.isEmpty else { return }
-                let newItem = Task(title: value)
-                owner.viewModel.originalTasks.insert(newItem, at: 0)
-                owner.viewModel.tasks.accept(owner.viewModel.originalTasks)
+        output.addTap
+            .bind(with: self, onNext: { owner, _ in
                 owner.addItemBar.text = ""
             })
-            .disposed(by: disposeBag)
-        
-        // 삭제
-        tableView.rx.itemDeleted
-            .bind(with: self) { owner, indexPath in
-                owner.viewModel.originalTasks.remove(at: indexPath.row)
-                owner.viewModel.tasks.accept(owner.viewModel.originalTasks)
-            }
             .disposed(by: disposeBag)
         
         // 상세화면 이동
@@ -99,23 +85,7 @@ extension TaskListViewController {
             })
             .disposed(by: disposeBag)
         
-        // 검색
-        searchBar.rx.text.orEmpty
-//            .debounce(.seconds(1), scheduler: MainScheduler.instance)
-            .distinctUntilChanged()
-            .bind(with: self) { owner, value in
-                print("실시간 검색어: \(value)")
-                if !value.isEmpty {
-                    let filteredTasks = owner.viewModel.originalTasks.filter { $0.title.contains(value) }
-                    owner.viewModel.tasks.accept(filteredTasks)
-                } else {
-                    owner.viewModel.tasks.accept(owner.viewModel.originalTasks)
-                }
-            }
-            .disposed(by: disposeBag)
-        
     }
-    
 }
 
 extension TaskListViewController {

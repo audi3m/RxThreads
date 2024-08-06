@@ -49,11 +49,16 @@ final class TaskViewModel {
             }
             .disposed(by: disposeBag)
         
+        input.deleteAt
+            .bind(with: self) { owner, indexPath in
+                owner.originalTasks.remove(at: indexPath.row)
+                owner.tasks.accept(owner.originalTasks)
+            }
+            .disposed(by: disposeBag)
         
         
-        return Output()
+        return Output(addTap: input.addTap)
     }
-    
 }
 
 extension TaskViewModel {
@@ -61,12 +66,11 @@ extension TaskViewModel {
         let addTap: ControlEvent<Void>
         let searchText: ControlProperty<String>
         let newTaskTitle: ControlProperty<String>
-        
-        
-        
+        let deleteAt: ControlEvent<IndexPath>
     }
     
     struct Output {
+        let addTap: ControlEvent<Void>
         
     }
 }
