@@ -15,7 +15,13 @@ struct Task {
     var done: Bool = false
 }
 
+protocol TaskViewModelDelegate: AnyObject {
+    func pushDetail(title: String)
+}
+
 final class TaskViewModel {
+    
+    weak var delegate: TaskViewModelDelegate?
     
     let disposeBag = DisposeBag()
     
@@ -56,6 +62,12 @@ final class TaskViewModel {
             }
             .disposed(by: disposeBag)
         
+        input.pushDetail
+            .bind(with: self, onNext: { owner, indexPath in
+                let title = owner.tasks.value[indexPath.row].title
+                owner.delegate?.pushDetail(title: title)
+            })
+            .disposed(by: disposeBag)
         
         return Output(addTap: input.addTap)
     }
@@ -67,11 +79,11 @@ extension TaskViewModel {
         let searchText: ControlProperty<String>
         let newTaskTitle: ControlProperty<String>
         let deleteAt: ControlEvent<IndexPath>
+        let pushDetail: ControlEvent<IndexPath>
     }
     
     struct Output {
         let addTap: ControlEvent<Void>
-        
     }
 }
 
@@ -86,74 +98,3 @@ extension TaskViewModel {
         tasks.accept(originalTasks)
     }
 }
-
-//private func bind() {
-//    tasks
-//        .bind(to: tableView.rx.items(cellIdentifier: TaskCell.id, cellType: TaskCell.self)) { row, task, cell in
-//            cell.task = task
-//            cell.likeButton.rx.tap
-//                .bind(with: self) { owner, _ in
-//                    owner.toggleLike(at: row)
-//                }
-//                .disposed(by: cell.disposeBag)
-//            cell.doneButton.rx.tap
-//                .bind(with: self) { owner, _ in
-//                    owner.toggleDone(at: row)
-//                }
-//                .disposed(by: cell.disposeBag)
-//        }
-//        .disposed(by: disposeBag)
-//    
-//    addItemBar.rx.searchButtonClicked
-//        .withLatestFrom(addItemBar.rx.text.orEmpty) { void, text in
-//            return text
-//        }
-//        .bind(with: self, onNext: { owner, value in
-//            guard !value.isEmpty else { return }
-//            let newItem = Task(title: value)
-//            owner.originalTasks.insert(newItem, at: 0)
-//            owner.tasks.accept(owner.originalTasks)
-//            owner.addItemBar.text = ""
-//        })
-//        .disposed(by: disposeBag)
-//    
-//    tableView.rx.itemDeleted
-//        .bind(with: self) { owner, indexPath in
-//            owner.originalTasks.remove(at: indexPath.row)
-//            owner.tasks.accept(owner.originalTasks)
-//        }
-//        .disposed(by: disposeBag)
-//    
-//    tableView.rx.itemSelected
-//        .bind(with: self, onNext: { owner, indexPath in
-//            let vc = DetailView()
-//            vc.titleLabel.text = owner.tasks.value[indexPath.row].title
-//            owner.navigationController?.pushViewController(vc, animated: true)
-//        })
-//        .disposed(by: disposeBag)
-//    
-//    searchBar.rx.text.orEmpty
-////            .debounce(.seconds(1), scheduler: MainScheduler.instance)
-//        .distinctUntilChanged()
-//        .bind(with: self) { owner, value in
-//            print("실시간 검색어: \(value)")
-//            if !value.isEmpty {
-//                let filteredTasks = owner.originalTasks.filter { $0.title.contains(value) }
-//                owner.tasks.accept(filteredTasks)
-//            } else {
-//                owner.tasks.accept(owner.originalTasks)
-//            }
-//        }
-//        .disposed(by: disposeBag)
-//    
-//}
-//
-//private func toggleDone(at index: Int) {
-//    originalTasks[index].done.toggle()
-//    tasks.accept(originalTasks)
-//}
-//
-//private func toggleLike(at index: Int) {
-//    originalTasks[index].like.toggle()
-//    tasks.accept(originalTasks)
-//}

@@ -37,19 +37,22 @@ final class TaskListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewModel.delegate = self
         configureView()
         bind()
     }
 }
 
-extension TaskListViewController {
+extension TaskListViewController: TaskViewModelDelegate {
     
     private func bind() {
         
         let input = TaskViewModel.Input(addTap: addItemBar.rx.searchButtonClicked,
                                         searchText: searchBar.rx.text.orEmpty,
                                         newTaskTitle: addItemBar.rx.text.orEmpty, 
-                                        deleteAt: tableView.rx.itemDeleted)
+                                        deleteAt: tableView.rx.itemDeleted,
+                                        pushDetail: tableView.rx.itemSelected)
+        
         let output = viewModel.transform(input: input)
         
         // 즐겨찾기, 완료 버튼
@@ -76,18 +79,16 @@ extension TaskListViewController {
             })
             .disposed(by: disposeBag)
         
-        // 상세화면 이동
-        tableView.rx.itemSelected
-            .bind(with: self, onNext: { owner, indexPath in
-                let vc = DetailView()
-                vc.titleLabel.text = owner.viewModel.tasks.value[indexPath.row].title
-                owner.navigationController?.pushViewController(vc, animated: true)
-            })
-            .disposed(by: disposeBag)
-        
+    }
+    
+    func pushDetail(title: String) {
+        let vc = DetailView()
+        vc.titleLabel.text = title
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
+// View
 extension TaskListViewController {
     private func configureView() {
         view.backgroundColor = .white
