@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 import RxSwift
 import RxCocoa
 
@@ -28,6 +29,8 @@ final class SearchViewController: UIViewController {
                 "ABC", "BBB", "EC", "SA",
                 "AAAB", "ED", "F", "G", "H"]
     
+    let viewModel = SearchViewModel()
+    
     lazy var list = BehaviorSubject(value: data)
     
     override func viewDidLoad() {
@@ -35,7 +38,32 @@ final class SearchViewController: UIViewController {
         view.backgroundColor = .white
         configure()
         setSearchController()
-        bind()
+        newBind()
+    }
+    
+    func newBind() {
+        
+        viewModel.list
+            .bind(to: tableView.rx.items(cellIdentifier: SearchTableViewCell.identifier, cellType: SearchTableViewCell.self)) { (row, element, cell) in
+                cell.appNameLabel.text = element
+                cell.appIconImageView.backgroundColor = .systemBlue
+                cell.downloadButton.rx.tap
+                    .bind(with: self) { owner, _ in
+                        print("\(row) Clicked")
+                        owner.navigationController?.pushViewController(DetailViewController(), animated: true)
+                    }
+                    .disposed(by: cell.disposeBag)
+            }
+            .disposed(by: disposeBag)
+        
+        searchBar.rx.text.orEmpty
+            .bind(to: viewModel.inputQuery)
+            .disposed(by: disposeBag)
+        
+        searchBar.rx.searchButtonClicked
+            .bind(to: viewModel.inputSearchButtonTap)
+            .disposed(by: disposeBag)
+        
     }
     
     func bind() {
@@ -89,6 +117,7 @@ final class SearchViewController: UIViewController {
         view.addSubview(searchBar)
         navigationItem.titleView = searchBar
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "추가", style: .plain, target: self, action: #selector(plusButtonClicked))
+        
     }
     
     @objc func plusButtonClicked() {

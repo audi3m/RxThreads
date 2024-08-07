@@ -10,7 +10,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-final class TaskCell: UITableViewCell {
+final class TaskTableViewCell: UITableViewCell {
     static var id: String {
         String(describing: self)
     }

@@ -25,8 +25,10 @@ final class TaskViewModel {
     
     let disposeBag = DisposeBag()
     
-    var originalTasks: [Task] = []
+    private var originalTasks: [Task] = []
     var tasks = BehaviorRelay<[Task]>(value: [])
+    
+    let dummyTasks = Observable.just(["과제하기", "운동하기", "장보기", "책읽기", "글쓰기"])
     
     func transform(input: Input) -> Output {
         
@@ -69,12 +71,20 @@ final class TaskViewModel {
             })
             .disposed(by: disposeBag)
         
+        input.recentText
+            .subscribe(with: self) { owner, value in
+                owner.originalTasks.insert(Task(title: value), at: 0)
+                owner.tasks.accept(owner.originalTasks)
+            }
+            .disposed(by: disposeBag)
+        
         return Output(addTap: input.addTap)
     }
 }
 
 extension TaskViewModel {
     struct Input {
+        let recentText: PublishSubject<String>
         let addTap: ControlEvent<Void>
         let searchText: ControlProperty<String>
         let newTaskTitle: ControlProperty<String>
