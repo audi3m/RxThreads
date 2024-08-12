@@ -28,12 +28,35 @@ final class BoxOfficeViewController: UIViewController {
 
 // Rx
 extension BoxOfficeViewController {
+    
+    // Observable Create Practice
+    // create
+    private func createObservable() {
+        let random = Observable<Int>.create { value in
+            let result = Int.random(in: 1...100)
+            if result >= 1 && result <= 45 {
+                value.onNext(result)
+            } else {
+                value.onCompleted()
+            }
+            return Disposables.create()
+        }
+        
+        // Observable
+        random
+            .subscribe(with: self) { owner, value in
+                print("random: \(value)")
+            } onCompleted: { _ in
+                print("Completed")
+            } onDisposed: { _ in
+                print("Disposed")
+            }
+            .disposed(by: disposeBag)
+    }
+    
     private func bind() {
         
-        let recentText = PublishSubject<String>()
-        
-        let input = BoxOfficeViewModel.Input(recentText: recentText,
-                                             searchButtonTap: searchBar.rx.searchButtonClicked,
+        let input = BoxOfficeViewModel.Input(searchButtonTap: searchBar.rx.searchButtonClicked,
                                              searchText: searchBar.rx.text.orEmpty)
         let output = viewModel.transform(input: input)
         
@@ -47,15 +70,8 @@ extension BoxOfficeViewController {
         // tableView
         output.movieList
             .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.id, cellType: MovieTableViewCell.self)) { (row, element, cell) in
-                cell.appNameLabel.text = element
-            }
-            .disposed(by: disposeBag)
-        
-        // 셀 클릭 - 합치기
-        Observable.zip(tableView.rx.modelSelected(String.self), tableView.rx.itemSelected)
-            .map { "검색어는 \($0.0)" }
-            .subscribe(with: self) { owner, value in
-                recentText.onNext(value)
+                cell.appNameLabel.text = element.movieNm
+                cell.downloadButton.setTitle(element.openDt, for: .normal)
             }
             .disposed(by: disposeBag)
     }
@@ -71,6 +87,7 @@ extension BoxOfficeViewController {
         
         navigationItem.titleView = searchBar
         
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: MovieCollectionViewCell.id)
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)

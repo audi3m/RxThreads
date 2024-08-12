@@ -45,7 +45,7 @@ final class TaskViewModel {
             .disposed(by: disposeBag)
         
         input.searchText
-//            .debounce(.seconds(1), scheduler: MainScheduler.instance)
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
             .distinctUntilChanged()
             .bind(with: self) { owner, value in
                 if !value.isEmpty {

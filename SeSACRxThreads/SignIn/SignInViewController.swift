@@ -7,13 +7,18 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
-class SignInViewController: UIViewController {
+final class SignInViewController: UIViewController {
 
     let emailTextField = SignTextField(placeholderText: "이메일을 입력해주세요")
     let passwordTextField = SignTextField(placeholderText: "비밀번호를 입력해주세요")
     let signInButton = PointButton(title: "로그인")
     let signUpButton = UIButton()
+    
+    let disposeBag = DisposeBag()
+    let viewModel = SignInViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,7 +27,53 @@ class SignInViewController: UIViewController {
         configureLayout()
         configure()
         
+        signInButton.addTarget(self, action: #selector(signInButtonClicked), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(signUpButtonClicked), for: .touchUpInside)
+        
+        rxBind()
+    }
+    
+    private func rxBind() {
+        
+        let input = SignInViewModel.Input(tap: signInButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        output.text
+            .map { joke in
+                return joke.joke
+            }
+            .drive(emailTextField.rx.text)
+//            .subscribe(with: self, onNext: { owner, value in
+//                <#code#>
+//            }, onError: { <#Object#>, <#any Error#> in
+//                <#code#>
+//            }, onCompleted: { <#Object#> in
+//                <#code#>
+//            }, onDisposed: { <#Object#> in
+//                <#code#>
+//            })
+            .disposed(by: disposeBag)
+        
+        output.text
+            .map { value in
+                return "농담: \(value.id)"
+            }
+            .drive(navigationItem.rx.title)
+//            .bind(to: emailTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+//        output.text
+//            .drive(emailTextField.rx.text)
+//            .disposed(by: disposeBag)
+//        
+//        output.text
+//            .drive(navigationItem.rx.title)
+//            .disposed(by: disposeBag)
+        
+    }
+    
+    @objc func signInButtonClicked() {
+        
     }
     
     @objc func signUpButtonClicked() {

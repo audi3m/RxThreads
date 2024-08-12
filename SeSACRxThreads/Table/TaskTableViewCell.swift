@@ -11,9 +11,8 @@ import RxSwift
 import RxCocoa
 
 final class TaskTableViewCell: UITableViewCell {
-    static var id: String {
-        String(describing: self)
-    }
+    static let id = "TaskTableViewCell"
+    
     var disposeBag = DisposeBag()
     var task: Task?
     
@@ -69,11 +68,13 @@ final class TaskTableViewCell: UITableViewCell {
         }
         
         likeButton.setImage(UIImage(systemName: "star"), for: .normal)
+        likeButton.tintColor = .systemYellow
         doneButton.setImage(UIImage(systemName: "square"), for: .normal)
+        doneButton.tintColor = .black
         
     }
     
-    func configureData() {
+    private func configureData() {
         guard let task else { return }
         titleLabel.text = task.title
         likeButton.setImage(UIImage(systemName: task.like ? "star.fill" : "star"), for: .normal)

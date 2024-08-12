@@ -23,7 +23,7 @@ final class TaskListViewController: UIViewController {
     private let addItemBar: UISearchBar = {
         let bar = UISearchBar()
         bar.setImage(UIImage(systemName: "plus"), for: .search, state: .normal)
-        bar.placeholder = "제목을 입력하세요"
+        bar.placeholder = "새로운 일의 제목을 입력하세요"
         bar.backgroundImage = UIImage()
         return bar
     }()
