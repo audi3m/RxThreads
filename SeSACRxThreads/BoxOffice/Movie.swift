@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct Movie: Decodable {
+struct Movie: Decodable, Sequence {
     let boxOfficeResult: BoxOfficeResult
+    
+    func makeIterator() -> Array<DailyBoxOfficeList>.Iterator {
+        return boxOfficeResult.dailyBoxOfficeList.makeIterator()
+    }
 }
 
 struct BoxOfficeResult: Decodable {

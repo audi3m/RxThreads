@@ -49,6 +49,7 @@
 		D482346C2C64519400BD02E4 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = D482346B2C64519400BD02E4 /* .gitignore */; };
 		D482346E2C6451BE00BD02E4 /* APIKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = D482346D2C6451BE00BD02E4 /* APIKey.swift */; };
 		D48234702C64526200BD02E4 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = D482346F2C64526200BD02E4 /* Movie.swift */; };
+		D4D637892C6A2AB40068488B /* BoxSingleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4D637882C6A2AB40068488B /* BoxSingleViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,6 +112,7 @@
 		D482346B2C64519400BD02E4 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		D482346D2C6451BE00BD02E4 /* APIKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKey.swift; sourceTree = "<group>"; };
 		D482346F2C64526200BD02E4 /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
+		D4D637882C6A2AB40068488B /* BoxSingleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxSingleViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -269,6 +271,7 @@
 			children = (
 				D482345B2C630ADC00BD02E4 /* BoxOfficeViewController.swift */,
 				D48234592C630ACF00BD02E4 /* BoxOfficeViewModel.swift */,
+				D4D637882C6A2AB40068488B /* BoxSingleViewModel.swift */,
 				D482345D2C630AE700BD02E4 /* MovieCollectionViewCell.swift */,
 				D482345F2C630AF100BD02E4 /* MovieTableViewCell.swift */,
 				D48234692C6450DF00BD02E4 /* NetworkManager.swift */,
@@ -434,6 +437,7 @@
 				D482346A2C6450DF00BD02E4 /* NetworkManager.swift in Sources */,
 				D482346E2C6451BE00BD02E4 /* APIKey.swift in Sources */,
 				D48234232C5F6D2500BD02E4 /* TaskListViewController.swift in Sources */,
+				D4D637892C6A2AB40068488B /* BoxSingleViewModel.swift in Sources */,
 				0412806F2AEFAD2D00972552 /* BirthdayViewController.swift in Sources */,
 				D482345A2C630ACF00BD02E4 /* BoxOfficeViewModel.swift in Sources */,
 				041280652AEFA2F000972552 /* SignTextField.swift in Sources */,

@@ -13,16 +13,17 @@ import RxCocoa
 final class BoxOfficeViewController: UIViewController {
     
     let viewModel = BoxOfficeViewModel()
+    let singleViewModel = BoxSingleViewModel()
     let disposeBag = DisposeBag()
     
     let searchBar = UISearchBar()
-    let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
+//    let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout())
     let tableView = UITableView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
-        bind()
+        newBind()
     }
 }
 
@@ -54,6 +55,20 @@ extension BoxOfficeViewController {
             .disposed(by: disposeBag)
     }
     
+    private func newBind() {
+        let input = BoxSingleViewModel.Input(tap: searchBar.rx.searchButtonClicked,
+                                             searchDate: searchBar.rx.text.orEmpty)
+        let output = singleViewModel.transform(input: input)
+        
+        output.movieList
+            .drive(tableView.rx.items(cellIdentifier: MovieTableViewCell.id, cellType: MovieTableViewCell.self)) { (row, element, cell) in
+                cell.appNameLabel.text = element.movieNm
+                cell.downloadButton.setTitle(element.openDt, for: .normal)
+            }
+            .disposed(by: disposeBag)
+        
+    }
+    
     private func bind() {
         
         let input = BoxOfficeViewModel.Input(searchButtonTap: searchBar.rx.searchButtonClicked,
@@ -61,11 +76,11 @@ extension BoxOfficeViewController {
         let output = viewModel.transform(input: input)
         
         // collectionView
-        output.recentList
-            .bind(to: collectionView.rx.items(cellIdentifier: MovieCollectionViewCell.id, cellType: MovieCollectionViewCell.self)) { (row, element, cell) in
-                cell.label.text = element
-            }
-            .disposed(by: disposeBag)
+//        output.recentList
+//            .bind(to: collectionView.rx.items(cellIdentifier: MovieCollectionViewCell.id, cellType: MovieCollectionViewCell.self)) { (row, element, cell) in
+//                cell.label.text = element
+//            }
+//            .disposed(by: disposeBag)
         
         // tableView
         output.movieList
@@ -82,32 +97,31 @@ extension BoxOfficeViewController {
     private func configureView() {
         view.backgroundColor = .white
         view.addSubview(searchBar)
-        view.addSubview(collectionView)
+//        view.addSubview(collectionView)
         view.addSubview(tableView)
         
         navigationItem.titleView = searchBar
         
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: MovieCollectionViewCell.id)
-        collectionView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide)
-            make.horizontalEdges.equalToSuperview()
-            make.height.equalTo(50)
-        }
+//        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+//        collectionView.register(MovieCollectionViewCell.self, forCellWithReuseIdentifier: MovieCollectionViewCell.id)
+//        collectionView.snp.makeConstraints { make in
+//            make.top.equalTo(view.safeAreaLayoutGuide)
+//            make.horizontalEdges.equalToSuperview()
+//            make.height.equalTo(50)
+//        }
         
         tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.id)
         tableView.rowHeight = 100
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(collectionView.snp.bottom)
-            make.horizontalEdges.bottom.equalTo(view)
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
     }
     
-    static func layout() -> UICollectionViewFlowLayout {
-        let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 120, height: 40)
-        layout.scrollDirection = .horizontal
-        return layout
-    }
+//    static func layout() -> UICollectionViewFlowLayout {
+//        let layout = UICollectionViewFlowLayout()
+//        layout.itemSize = CGSize(width: 120, height: 40)
+//        layout.scrollDirection = .horizontal
+//        return layout
+//    }
     
 }

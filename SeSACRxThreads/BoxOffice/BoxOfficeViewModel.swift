@@ -18,8 +18,6 @@ import RxCocoa
 
 final class BoxOfficeViewModel: BaseViewModel {
     let disposeBag = DisposeBag()
-//    private let movieList = Observable.just(["Test 1", "Test 2", "Test 3"])
-    private var recentList = ["Recent 1", "Recent 2", "Recent 3", "Recent 4"]
 }
 
 extension BoxOfficeViewModel {
@@ -31,11 +29,9 @@ extension BoxOfficeViewModel {
     
     struct Output {
         let movieList: Observable<[DailyBoxOfficeList]>
-        let recentList: BehaviorSubject<[String]>
     }
     
     func transform(input: Input) -> Output {
-        let recentList = BehaviorSubject(value: recentList)
         let boxOfficeList = PublishSubject<[DailyBoxOfficeList]>()
         
         // Observable 안에 Observable이 있는 형태
@@ -70,6 +66,6 @@ extension BoxOfficeViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(movieList: boxOfficeList, recentList: recentList)
+        return Output(movieList: boxOfficeList)
     }
 }
